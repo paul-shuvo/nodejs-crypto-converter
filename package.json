@@ -1,6 +1,6 @@
 {
   "name": "crypto-converter-lt",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "A nodejs crypto currency converter library that doesn't require subscribing to any API calls.",
   "main": "index.js",
   "dependencies": {
