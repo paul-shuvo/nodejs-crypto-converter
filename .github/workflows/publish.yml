@@ -29,9 +29,15 @@ jobs:
         scope: '@paul-shuvo'
     - run: |
         sudo apt install jq 
-        echo $(jq '.name = "@paul-shuvo/nodejs-currency-converter"' package.json) > package.json
+        echo $(jq '.name = "@paul-shuvo/nodejs-crypto-converter"' package.json) > package.json
         echo $(jq '.publishConfig.registry = "https://npm.pkg.github.com/paul-shuvo"' package.json) > package.json
     - run: npm install
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    - run: |
+        npm init -y
+        npm install --save crypto-converter-lt
+        echo -e "const CC = require('crypto-converter-lt')\nlet currencyConverter = new CC({from:'BTC', to:'ARK', amount:1})\ncurrencyConverter.convert().then((response) => {\nconsole.log(response) //or do something else\n})" >> index.js
+        node index.js
+

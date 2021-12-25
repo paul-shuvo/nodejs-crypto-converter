@@ -19,21 +19,21 @@ describe("currencyConverter", () =>  {
         })
     
         it("should instantiate an object with json object as a parameter", () =>  {
-            let CC_ = new CC({from:"GBP", to:"CAD", amount: 100})
-            assert.equal(CC_.currencyFrom, "GBP")
+            let CC_ = new CC({from:"BTC", to:"ETH", amount: 100})
+            assert.equal(CC_.currencyFrom, "BTC")
         })
 
         it("should instantiate an object with json object with partial parameters", () =>  {
-            let CC_ = new CC({from:"GBP", amount: 100})
-            assert.equal(CC_.currencyFrom, "GBP")
+            let CC_ = new CC({from:"BTC", amount: 100})
+            assert.equal(CC_.currencyFrom, "BTC")
             assert.equal(CC_.currencyTo, "")
 
-            CC_ = new CC({to:"GBP", amount: 100})
-            assert.equal(CC_.currencyTo, "GBP")
+            CC_ = new CC({to:"BTC", amount: 100})
+            assert.equal(CC_.currencyTo, "BTC")
             assert.equal(CC_.currencyFrom, "")
 
-            CC_ = new CC({from:"GBP", to: "USD"})
-            assert.equal(CC_.currencyFrom, "GBP")
+            CC_ = new CC({from:"BTC", to: "LTC"})
+            assert.equal(CC_.currencyFrom, "BTC")
             assert.equal(CC_.currencyAmount, 1)
         })
 
@@ -43,14 +43,14 @@ describe("currencyConverter", () =>  {
     })
 
     describe("currencyFrom", () =>  {
-        it("should equal to USD", () =>  {
-            currencyConverter.currencyFrom = "USD"
-            assert.equal(currencyConverter.currencyFrom, "USD")
+        it("should equal to LTC", () =>  {
+            currencyConverter.currencyFrom = "LTC"
+            assert.equal(currencyConverter.currencyFrom, "LTC")
         })
 
-        it("should equal to INR", () =>  {
-            currencyConverter.from("INR")
-            assert.equal(currencyConverter.currencyFrom, "INR")
+        it("should equal to XMR", () =>  {
+            currencyConverter.from("XMR")
+            assert.equal(currencyConverter.currencyFrom, "XMR")
         })
 
         it("should throw a TypeError", () =>  {
@@ -64,14 +64,14 @@ describe("currencyConverter", () =>  {
     })
 
     describe("currencyTo", () =>  {
-        it("should equal to CAD", () =>  {
-            currencyConverter.currencyTo = "CAD"
-            assert.equal(currencyConverter.currencyTo, "CAD");
+        it("should equal to ETH", () =>  {
+            currencyConverter.currencyTo = "ETH"
+            assert.equal(currencyConverter.currencyTo, "ETH");
         })
 
-        it("should equal to JPY", () =>  {
-            currencyConverter.to("JPY")
-            assert.equal(currencyConverter.currencyTo, "JPY");
+        it("should equal to EOS", () =>  {
+            currencyConverter.to("EOS")
+            assert.equal(currencyConverter.currencyTo, "EOS");
         })
 
         it("should throw a TypeError", () =>  {
@@ -100,39 +100,39 @@ describe("currencyConverter", () =>  {
 
     describe("rates", () =>  {
         it("should not return undefined values", () => {
-            currencyConverter.from("USD").to("JPY")
+            currencyConverter.from("LTC").to("EOS")
             return expect(currencyConverter.rates()).to.eventually.not.equal(undefined)
         })
     })
 
     describe("convert", () =>  {
         it("should set the amount value if a paramter is passed", () => {
-            currencyConverter.from("USD").to("USD")
+            currencyConverter.from("LTC").to("LTC")
             return expect(currencyConverter.convert(100)).to.eventually.equal(100)
         })
 
         it("should throw an Error", () =>  {
             currencyConverter.currencyFrom = ""
-            currencyConverter.to("CAD").amount(100)
+            currencyConverter.to("ETH").amount(100)
             expect(() => currencyConverter.convert()).to.throw(Error)
         })
 
         it("should throw an Error", () =>  {
             currencyConverter.currencyTo = ""
-            currencyConverter.from("CAD").amount(100)
+            currencyConverter.from("ETH").amount(100)
             expect(() => currencyConverter.convert()).to.throw(Error)
         })
 
         it("should throw an Error", () =>  {
             currencyConverter.currencyAmount = 0
-            currencyConverter.from("USD").to("CAD")
+            currencyConverter.from("LTC").to("ETH")
             expect(() => currencyConverter.convert()).to.throw(Error)
         })
     })
 
     describe("currencyName", () =>  {
         it("should return name of the currency from the currency code", () =>  {
-            assert.equal(currencyConverter.currencyName("CHF"), "Swiss Franc")
+            assert.equal(currencyConverter.currencyName("BTC"), "Bitcoin")
         })
 
         it("should throw a TypeError", () =>  {
