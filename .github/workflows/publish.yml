@@ -36,8 +36,8 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     - run: |
-        mkdir test
-        cd test
+        mkdir test-package
+        cd test-package
         npm init -y
         npm install --save crypto-converter-lt
         echo -e "const CC = require('crypto-converter-lt')\nlet currencyConverter = new CC({from:'BTC', to:'ARK', amount:1})\ncurrencyConverter.convert().then((response) => {\nconsole.log(response) //or do something else\n})" >> index.js
