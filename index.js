@@ -92,7 +92,10 @@ class CryptoConverter {
         this.currencyFrom = ""
         this.currencyTo = ""
         this.currencyAmount = 1
-        this.convertedValue = 0
+        this.convertedValue = 0;
+        this.isRatesCaching = false;
+        this.ratesCacheDuration = 0; // Defaults to 3600 seconds (1 hour)
+        this.ratesCache = {};
 
         if(params != undefined){
             if(params["from"] !== undefined)
@@ -100,7 +103,7 @@ class CryptoConverter {
 
             if(params["to"] !== undefined)
                 this.to(params["to"])
-            
+
             if(params["amount"] !== undefined)
                 this.amount(params["amount"])
         }
@@ -109,7 +112,7 @@ class CryptoConverter {
     from (currencyFrom) {
         if(typeof currencyFrom !== "string")
             throw new TypeError("currency code should be a string")
-            
+
         if(!this.currencyCode.includes(currencyFrom.toUpperCase()))
             throw new Error(`${currencyFrom} is not a valid currency code`)
 
@@ -132,21 +135,58 @@ class CryptoConverter {
 
         if(currencyAmount <= 0)
             throw new Error("amount should be a positive number")
-            
+
         this.currencyAmount = currencyAmount
+        return this
+    }
+
+    setupRatesCache(ratesCacheOptions) {
+        if (typeof ratesCacheOptions != "object")
+            throw new TypeError("ratesCacheOptions should be an object")
+
+        if (ratesCacheOptions.isRatesCaching === undefined)
+            throw new Error(`ratesCacheOptions should have a property called isRatesCaching`)
+
+        if (typeof ratesCacheOptions.isRatesCaching != "boolean")
+            throw new TypeError("ratesCacheOptions.isRatesCaching should be a boolean")
+
+        if (typeof ratesCacheOptions.ratesCacheDuration != "number")
+            throw new TypeError("ratesCacheOptions.ratesCacheDuration should be a number")
+
+        if(ratesCacheOptions.ratesCacheDuration <= 0)
+            throw new Error("ratesCacheOptions.ratesCacheDuration should be a positive number of seconds")
+
+        this.isRatesCaching = ratesCacheOptions.isRatesCaching;
+
+        if (ratesCacheOptions.ratesCacheDuration === undefined)
+            this.ratesCacheDuration = 3600000; // Defaults to 3600 seconds (1 hour)
+        else
+            this.ratesCacheDuration = ratesCacheOptions.ratesCacheDuration * 1000;
+
         return this
     }
 
     rates(){
         if(this.currencyFrom === this.currencyTo)
             return new Promise((resolve, _) => {resolve(1) })
-        else    
-            return got(`https://www.google.com/finance/quote/${this.currencyFrom}-${this.currencyTo}`)
-                .then((html) => {return cheerio.load(html.body)})
-                .then(($) => {return $(".fxKbKc").text()})
-                .then((rates) => {
-                    return parseFloat(rates.replace(",", ""))
-            })
+        else
+            currencyPair = this.currencyFrom.toUpperCase() + this.currencyTo.toUpperCase();
+            if (currencyPair in this.ratesCache)
+            return new Promise((resolve, _) => {
+                resolve(this.ratesCache[currencyPair])
+            });
+            else
+                return got(`https://www.google.com/finance/quote/${this.currencyFrom}-${this.currencyTo}`)
+                    .then((html) => {return cheerio.load(html.body)})
+                    .then(($) => {return $(".fxKbKc").text()})
+                    .then((rates) => {
+                        rates = rates.replace(",", "")
+                        if (this.isRatesCaching) {
+                            this.ratesCache[currencyPair] = parseFloat(rates)
+                            this.removeCurrencyPairFromRatesCache(currencyPair)
+                        }
+                        return parseFloat(rates)
+                    })
     }
 
     convert(currencyAmount){
@@ -172,11 +212,18 @@ class CryptoConverter {
     currencyName(currencyCode_){
         if(typeof currencyCode_ != "string")
             throw new TypeError("currency code should be a string")
-        
+
         if(!this.currencyCode.includes(currencyCode_.toUpperCase()))
             throw new Error(`${currencyCode_} is not a valid currency code`)
 
         return this.currencies[currencyCode_]
+    }
+
+    removeCurrencyPairFromRatesCache(currencyPair) {
+        // Deletes cached currencyPair rate an hour later
+        setTimeout(function() {
+            delete this.ratesCache[currencyPair];
+        }, this.ratesCacheDuration);
     }
   }
 
