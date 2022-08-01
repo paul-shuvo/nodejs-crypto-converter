@@ -167,15 +167,15 @@ class CryptoConverter {
     }
 
     rates(){
-        if(this.currencyFrom === this.currencyTo)
+        if(this.currencyFrom === this.currencyTo) {
             return new Promise((resolve, _) => {resolve(1) })
-        else
-            currencyPair = this.currencyFrom.toUpperCase() + this.currencyTo.toUpperCase();
-            if (currencyPair in this.ratesCache)
-            return new Promise((resolve, _) => {
-                resolve(this.ratesCache[currencyPair])
-            });
-            else
+        } else {
+            let currencyPair = this.currencyFrom.toUpperCase() + this.currencyTo.toUpperCase();
+            if (currencyPair in this.ratesCache) {
+                return new Promise((resolve, _) => {
+                    resolve(this.ratesCache[currencyPair])
+                });
+            } else {
                 return got(`https://www.google.com/finance/quote/${this.currencyFrom}-${this.currencyTo}`)
                     .then((html) => {return cheerio.load(html.body)})
                     .then(($) => {return $(".fxKbKc").text()})
@@ -187,6 +187,8 @@ class CryptoConverter {
                         }
                         return parseFloat(rates)
                     })
+            }
+        }
     }
 
     convert(currencyAmount){
