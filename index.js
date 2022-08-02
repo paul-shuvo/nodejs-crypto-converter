@@ -159,9 +159,9 @@ class CryptoConverter {
         this.isRatesCaching = ratesCacheOptions.isRatesCaching;
 
         if (ratesCacheOptions.ratesCacheDuration === undefined)
-            this.ratesCacheDuration = 3600000; // Defaults to 3600 seconds (1 hour)
+            this.ratesCacheDuration = 3600; // Defaults to 3600 seconds (1 hour)
         else
-            this.ratesCacheDuration = ratesCacheOptions.ratesCacheDuration * 1000;
+            this.ratesCacheDuration = ratesCacheOptions.ratesCacheDuration;
 
         return this
     }
@@ -171,9 +171,10 @@ class CryptoConverter {
             return new Promise((resolve, _) => {resolve(1) })
         } else {
             let currencyPair = this.currencyFrom.toUpperCase() + this.currencyTo.toUpperCase();
-            if (currencyPair in this.ratesCache) {
+            let now = new Date();
+            if (currencyPair in this.ratesCache && now < this.ratesCache[currencyPair].expiryDate) {
                 return new Promise((resolve, _) => {
-                    resolve(this.ratesCache[currencyPair])
+                    resolve(this.ratesCache[currencyPair].rate);
                 });
             } else {
                 return got(`https://www.google.com/finance/quote/${this.currencyFrom}-${this.currencyTo}`)
@@ -182,8 +183,7 @@ class CryptoConverter {
                     .then((rates) => {
                         rates = rates.replace(",", "")
                         if (this.isRatesCaching) {
-                            this.ratesCache[currencyPair] = parseFloat(rates)
-                            this.removeCurrencyPairFromRatesCache(currencyPair)
+                            this.addRateToRatesCache(currencyPair, parseFloat(rates));
                         }
                         return parseFloat(rates)
                     })
@@ -221,12 +221,26 @@ class CryptoConverter {
         return this.currencies[currencyCode_]
     }
 
-    removeCurrencyPairFromRatesCache(currencyPair) {
-        // Deletes cached currencyPair rate an hour later
-        setTimeout(function() {
-            delete this.ratesCache[currencyPair];
-        }, this.ratesCacheDuration);
+    addRateToRatesCache(currencyPair, rate_) {
+        let now = new Date();
+        if (currencyPair in this.ratesCache) {
+            if (now > this.ratesCache[currencyPair].expiryDate) {
+            let newExpiry = new Date();
+            newExpiry.setSeconds(newExpiry.getSeconds() + this.ratesCacheDuration);
+            this.ratesCache[currencyPair] = {
+              rate: rate_,
+              expiryDate: newExpiry
+            };
+          }
+        } else {
+            let newExpiry = new Date();
+            newExpiry.setSeconds(newExpiry.getSeconds() + this.ratesCacheDuration);
+            this.ratesCache[currencyPair] = {
+                rate: rate_,
+                expiryDate: newExpiry
+            };
+        }
     }
-  }
+}
 
 module.exports = CryptoConverter
