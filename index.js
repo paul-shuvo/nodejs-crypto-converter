@@ -236,6 +236,12 @@ class CryptoConverter {
   }
 
   addRateToRatesCache(currencyPair, rate_) {
+    if (typeof currencyPair != "string")
+      throw new TypeError("currency pair should be a string")
+
+    if (typeof rate_ != "number")
+      throw new TypeError("rate should be a number")
+    
     let now = new Date();
     if (currencyPair in this.ratesCache) {
       if (now > this.ratesCache[currencyPair].expiryDate) {
