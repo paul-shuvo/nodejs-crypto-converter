@@ -188,8 +188,8 @@ class CryptoConverter {
                 resolve(body);
               }
             });
-          }).then((html) => {
-            return cheerio.load(html.body)
+          }).then((body) => {
+            return cheerio.load(body)
           })
           .then(($) => {
             return $(".fxKbKc").text()
