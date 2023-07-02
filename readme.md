@@ -70,7 +70,7 @@ cryptoConverter.rates().then((response) => {
 
 Rates can be cached for cryptocurrency pairs. To implement rate caching, instantiate an object of CryptoConverter only once in your project, in a CyptoConverter file, and setup rates caching then import the instance of CryptoConverter from the CyptoConverter file in your project across the rest of your project. Use chaining to convert cryptocurrencies when caching is implemented. Below is an example of a CyptoConverter file.
 
-Note: Rates are not actually deleted after the ratesCacheDuration. The rate remains in the rates cache of the CyptoConverter object until a request is made for the same cryptocurrency pair at which point, the old rate is overwritten.
+Note: Rates are not actually deleted after the ratesCacheDuration. The rate remains in the rates cache of the CyptoConverter object until a request is made for the same cryptocurrency pair after the rates cache duration has been exceeded at which point, the old rate is overwritten.
 
 ```javascript
 const CC = require('crypto-converter-lt')
